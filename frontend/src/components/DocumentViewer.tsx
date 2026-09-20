@@ -1,6 +1,7 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { ZoomIn, ZoomOut, RotateCw, Maximize2, Layers, Eye, ShieldAlert, Users } from "lucide-react";
 import { ExtractedField, TamperResultItem, FaceResultItem } from "../types";
+import { Button } from "./ui/Button";
 
 interface DocumentViewerProps {
   documentUrl?: string | null;
@@ -14,7 +15,6 @@ interface DocumentViewerProps {
 
 export const DocumentViewer: React.FC<DocumentViewerProps> = ({
   documentUrl,
-  livePhotoUrl,
   fields,
   tamperResults,
   faceResult,
@@ -63,93 +63,105 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
   const handleMouseUp = () => setIsDragging(false);
 
   return (
-    <div className="flex flex-col h-full rounded-2xl border border-slate-800 bg-slate-900/60 overflow-hidden shadow-xl">
+    <div className="flex flex-col h-full rounded-2xl border-2 border-ink bg-white overflow-hidden shadow-neo">
       {/* Viewer Header & Layer Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-2 p-3 border-b border-slate-800 bg-slate-950/80">
-        <div className="flex items-center space-x-1 bg-slate-900 p-0.5 rounded-xl border border-slate-800">
-          <button
+      <div className="flex flex-wrap items-center justify-between gap-1.5 px-3 py-1.5 border-b-2 border-ink bg-[#FFFDF7] min-h-[52px]">
+        {/* Layer Buttons: Consistent h-10 container with h-8 buttons */}
+        <div className="flex items-center space-x-1 bg-white p-1 rounded-xl border-2 border-ink shadow-neo-sm h-10">
+          <Button
+            size="sm"
+            variant={activeLayer === "original" ? "blue" : "ghost"}
             onClick={() => setActiveLayer("original")}
-            className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors flex items-center space-x-1.5 ${
-              activeLayer === "original"
-                ? "bg-blue-600 text-white shadow-sm shadow-blue-600/30"
-                : "text-slate-400 hover:text-slate-200"
-            }`}
+            icon={<Eye className="h-3.5 w-3.5 stroke-[2.5]" />}
+            aria-label="View original document"
+            className="h-8 px-2 text-xs font-black"
           >
-            <Eye className="h-3.5 w-3.5" />
             <span>Original</span>
-          </button>
+          </Button>
 
-          <button
+          <Button
+            size="sm"
+            variant={activeLayer === "ocr_boxes" ? "orange" : "ghost"}
             onClick={() => setActiveLayer("ocr_boxes")}
-            className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors flex items-center space-x-1.5 ${
-              activeLayer === "ocr_boxes"
-                ? "bg-blue-600 text-white shadow-sm shadow-blue-600/30"
-                : "text-slate-400 hover:text-slate-200"
-            }`}
+            icon={<Layers className="h-3.5 w-3.5 stroke-[2.5]" />}
+            aria-label="View OCR bounding boxes overlay"
+            className="h-8 px-2 text-xs font-black"
           >
-            <Layers className="h-3.5 w-3.5" />
-            <span>OCR BBoxes</span>
-          </button>
+            <span className="hidden xl:inline">OCR </span><span>BBoxes</span>
+          </Button>
 
-          <button
+          <Button
+            size="sm"
+            variant={activeLayer === "ela_heatmap" ? "coral" : "ghost"}
             onClick={() => setActiveLayer("ela_heatmap")}
             disabled={!heatmapUrl}
-            className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors flex items-center space-x-1.5 ${
-              activeLayer === "ela_heatmap"
-                ? "bg-blue-600 text-white shadow-sm shadow-blue-600/30"
-                : "text-slate-400 hover:text-slate-200 disabled:opacity-40"
-            }`}
+            icon={<ShieldAlert className="h-3.5 w-3.5 stroke-[2.5]" />}
+            aria-label="View ELA compression forensics heatmap"
+            className="h-8 px-2 text-xs font-black"
           >
-            <ShieldAlert className="h-3.5 w-3.5" />
-            <span>ELA Forensics</span>
-          </button>
+            <span className="hidden xl:inline">ELA </span><span>Forensics</span>
+          </Button>
 
-          <button
+          <Button
+            size="sm"
+            variant={activeLayer === "biometrics" ? "lavender" : "ghost"}
             onClick={() => setActiveLayer("biometrics")}
-            className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors flex items-center space-x-1.5 ${
-              activeLayer === "biometrics"
-                ? "bg-blue-600 text-white shadow-sm shadow-blue-600/30"
-                : "text-slate-400 hover:text-slate-200"
-            }`}
+            icon={<Users className="h-3.5 w-3.5 stroke-[2.5]" />}
+            aria-label="View biometric face comparison"
+            className="h-8 px-2 text-xs font-black"
           >
-            <Users className="h-3.5 w-3.5" />
-            <span>Face Biometrics</span>
-          </button>
+            <span className="hidden xl:inline">Face </span><span>Biometrics</span>
+          </Button>
         </div>
 
-        {/* Zoom & Rotation Controls */}
-        <div className="flex items-center space-x-1 text-slate-300">
-          <button
+        {/* Zoom & Rotation Controls: Exact matching 32px height for all buttons and zoom indicator */}
+        <div className="flex items-center space-x-1 h-10" role="toolbar" aria-label="Document viewer zoom and rotation controls">
+          <Button
+            size="icon"
+            variant="outline"
             onClick={handleZoomOut}
             title="Zoom out"
-            className="p-1.5 rounded-lg hover:bg-slate-800 hover:text-white transition-colors"
+            aria-label="Zoom out"
+            className="h-8 w-8 p-0 inline-flex items-center justify-center rounded-lg border-2 border-ink bg-white shadow-neo-sm hover:bg-cream"
           >
-            <ZoomOut className="h-4 w-4" />
-          </button>
-          <span className="text-xs font-mono px-1 w-12 text-center text-slate-400">
+            <ZoomOut className="h-3.5 w-3.5 stroke-[2.5]" />
+          </Button>
+          <span
+            className="h-8 w-12 inline-flex items-center justify-center font-mono text-[11px] font-black text-ink bg-cream rounded-lg border-2 border-ink shadow-neo-sm select-none"
+            aria-label={`Current zoom level ${Math.round(zoom * 100)} percent`}
+          >
             {Math.round(zoom * 100)}%
           </span>
-          <button
+          <Button
+            size="icon"
+            variant="outline"
             onClick={handleZoomIn}
             title="Zoom in"
-            className="p-1.5 rounded-lg hover:bg-slate-800 hover:text-white transition-colors"
+            aria-label="Zoom in"
+            className="h-8 w-8 p-0 inline-flex items-center justify-center rounded-lg border-2 border-ink bg-white shadow-neo-sm hover:bg-cream"
           >
-            <ZoomIn className="h-4 w-4" />
-          </button>
-          <button
+            <ZoomIn className="h-3.5 w-3.5 stroke-[2.5]" />
+          </Button>
+          <Button
+            size="icon"
+            variant="outline"
             onClick={handleRotate}
-            title="Rotate 90°"
-            className="p-1.5 rounded-lg hover:bg-slate-800 hover:text-white transition-colors"
+            title="Rotate 90 degrees clockwise"
+            aria-label="Rotate 90 degrees clockwise"
+            className="h-8 w-8 p-0 inline-flex items-center justify-center rounded-lg border-2 border-ink bg-white shadow-neo-sm hover:bg-cream"
           >
-            <RotateCw className="h-4 w-4" />
-          </button>
-          <button
+            <RotateCw className="h-3.5 w-3.5 stroke-[2.5]" />
+          </Button>
+          <Button
+            size="icon"
+            variant="outline"
             onClick={handleReset}
             title="Fit to view"
-            className="p-1.5 rounded-lg hover:bg-slate-800 hover:text-white transition-colors"
+            aria-label="Reset zoom and rotation to fit view"
+            className="h-8 w-8 p-0 inline-flex items-center justify-center rounded-lg border-2 border-ink bg-white shadow-neo-sm hover:bg-cream"
           >
-            <Maximize2 className="h-4 w-4" />
-          </button>
+            <Maximize2 className="h-3.5 w-3.5 stroke-[2.5]" />
+          </Button>
         </div>
       </div>
 
@@ -160,49 +172,58 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
-        className={`relative flex-1 overflow-hidden bg-slate-950 flex items-center justify-center select-none ${
+        className={`relative flex-1 overflow-hidden bg-[#F8F6EF] flex items-center justify-center select-none ${
           isDragging ? "cursor-grabbing" : "cursor-grab"
         }`}
+        style={{
+          backgroundImage: "radial-gradient(#171717 1px, transparent 1px)",
+          backgroundSize: "20px 20px",
+          backgroundPosition: "0 0",
+        }}
       >
         {activeLayer === "biometrics" ? (
           /* Side-by-side Biometric Comparison */
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6 p-6 max-w-full">
             {/* Document Portrait */}
-            <div className="flex flex-col items-center bg-slate-900/80 p-4 rounded-xl border border-slate-800">
-              <span className="text-xs font-semibold text-slate-400 mb-2">DOCUMENT PORTRAIT</span>
-              <div className="w-48 h-56 rounded-lg overflow-hidden border border-slate-700 bg-slate-950 flex items-center justify-center">
+            <div className="flex flex-col items-center bg-white p-4 rounded-2xl border-2 border-ink shadow-neo">
+              <span className="text-xs font-black uppercase tracking-wider text-ink mb-2">
+                DOCUMENT PORTRAIT
+              </span>
+              <div className="w-48 h-56 rounded-xl overflow-hidden border-2 border-ink bg-cream flex items-center justify-center">
                 {faceResult?.doc_portrait_url ? (
                   <img
                     src={faceResult.doc_portrait_url}
-                    alt="Document portrait"
+                    alt="Document portrait crop"
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <span className="text-xs text-slate-500">No portrait crop</span>
+                  <span className="text-xs font-bold text-ink/50">No portrait crop</span>
                 )}
               </div>
-              <span className="text-[11px] text-slate-400 mt-2">
+              <div className="mt-2.5 px-3 py-1 rounded-lg bg-mint/50 border border-ink text-xs font-bold text-ink">
                 Quality: {Math.round((faceResult?.quality_score || 0.8) * 100)}%
-              </span>
+              </div>
             </div>
 
             {/* Presented / Live Face */}
-            <div className="flex flex-col items-center bg-slate-900/80 p-4 rounded-xl border border-slate-800">
-              <span className="text-xs font-semibold text-slate-400 mb-2">PRESENTED LIVE IMAGE</span>
-              <div className="w-48 h-56 rounded-lg overflow-hidden border border-slate-700 bg-slate-950 flex items-center justify-center">
+            <div className="flex flex-col items-center bg-white p-4 rounded-2xl border-2 border-ink shadow-neo">
+              <span className="text-xs font-black uppercase tracking-wider text-ink mb-2">
+                PRESENTED LIVE IMAGE
+              </span>
+              <div className="w-48 h-56 rounded-xl overflow-hidden border-2 border-ink bg-cream flex items-center justify-center">
                 {faceResult?.live_photo_url ? (
                   <img
                     src={faceResult.live_photo_url}
-                    alt="Presented live face"
+                    alt="Presented live traveler face"
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <span className="text-xs text-slate-500">No live photo provided</span>
+                  <span className="text-xs font-bold text-ink/50">No live photo provided</span>
                 )}
               </div>
-              <span className="text-[11px] text-slate-400 mt-2">
-                Similarity: {faceResult?.outcome === "NOT_PERFORMED" ? "N/A" : `${Math.round(faceResult?.similarity_score || 0 * 100)}%`}
-              </span>
+              <div className="mt-2.5 px-3 py-1 rounded-lg bg-lavender/50 border border-ink text-xs font-bold text-ink">
+                Similarity: {faceResult?.outcome === "NOT_PERFORMED" ? "N/A" : `${Math.round((faceResult?.similarity_score || 0) * 100)}%`}
+              </div>
             </div>
           </div>
         ) : (
@@ -215,18 +236,18 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
             className="relative max-w-full max-h-full flex items-center justify-center"
           >
             {documentUrl ? (
-              <div className="relative inline-block shadow-2xl rounded-lg overflow-hidden border border-slate-800">
-                {/* Base Image */}
+              <div className="relative inline-block rounded-xl overflow-hidden border-3 border-ink shadow-neo-lg bg-white">
+                {/* Base Forensic Image */}
                 <img
                   src={activeLayer === "ela_heatmap" && heatmapUrl ? heatmapUrl : documentUrl}
-                  alt="Identity Document"
-                  className="max-h-[68vh] object-contain pointer-events-none"
+                  alt="Identity Document Forensic Canvas"
+                  className="max-h-[440px] max-w-[92%] md:max-w-[480px] lg:max-w-[520px] w-auto object-contain pointer-events-none"
                   draggable={false}
                 />
 
                 {/* Layer: OCR Bounding Boxes */}
                 {activeLayer === "ocr_boxes" && (
-                  <div className="absolute inset-0 pointer-events-auto">
+                  <div className="absolute inset-0 pointer-events-auto" aria-label="OCR Bounding Box Overlays">
                     {fields.map((f) => {
                       if (!f.bbox) return null;
                       const [bx, by, bw, bh] = f.bbox;
@@ -235,9 +256,18 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
                       return (
                         <div
                           key={f.field_name}
+                          role="button"
+                          tabIndex={0}
+                          aria-label={`Highlight ${f.field_name}: ${f.value}`}
                           onClick={(e) => {
                             e.stopPropagation();
                             onSelectField && onSelectField(f.field_name);
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              onSelectField && onSelectField(f.field_name);
+                            }
                           }}
                           style={{
                             left: `${bx * 100}%`,
@@ -245,13 +275,13 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
                             width: `${bw * 100}%`,
                             height: `${bh * 100}%`,
                           }}
-                          className={`absolute border transition-all cursor-pointer group ${
+                          className={`absolute border-2 transition-all cursor-pointer group ${
                             isSelected
-                              ? "border-yellow-400 bg-yellow-400/25 ring-2 ring-yellow-400/50 z-20"
-                              : "border-blue-400/70 bg-blue-500/10 hover:border-blue-300 hover:bg-blue-400/20 z-10"
+                              ? "border-ink bg-orange/40 ring-3 ring-ink z-20"
+                              : "border-ink bg-blue/25 hover:bg-blue/40 z-10"
                           }`}
                         >
-                          <div className="absolute -top-5 left-0 rounded bg-slate-900/90 px-1.5 py-0.5 text-[9px] font-mono text-blue-300 whitespace-nowrap border border-slate-700 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="absolute -top-7 left-0 rounded-lg bg-ink px-2 py-0.5 text-[10px] font-mono font-bold text-white whitespace-nowrap shadow-neo-sm pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-30">
                             {f.field_name}: {f.value} ({Math.round(f.confidence * 100)}%)
                           </div>
                         </div>
@@ -261,22 +291,29 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
                 )}
               </div>
             ) : (
-              <div className="text-slate-600 text-sm">No document image loaded</div>
+              <div className="text-ink/60 font-bold text-sm bg-white p-6 rounded-2xl border-2 border-ink shadow-neo">
+                No document image loaded
+              </div>
             )}
           </div>
         )}
       </div>
 
       {/* Footer Info / Overlay Legend */}
-      <div className="p-2.5 px-4 border-t border-slate-800 bg-slate-950/80 flex items-center justify-between text-[11px] text-slate-400">
-        <div className="flex items-center space-x-3">
-          <span>Active Layer: <strong className="text-slate-200 uppercase">{activeLayer.replace("_", " ")}</strong></span>
+      <div className="h-10 px-4 border-t-2 border-ink bg-[#FFFDF7] flex items-center justify-between text-xs font-bold text-ink shrink-0">
+        <div className="flex items-center space-x-2">
+          <span className="text-[11px] font-black uppercase tracking-wider text-ink/70">Active Layer:</span>
+          <span className="rounded-md bg-blue/40 px-2 py-0.5 border border-ink uppercase tracking-wider text-[10px] font-black">
+            {activeLayer.replace("_", " ")}
+          </span>
           {activeLayer === "ela_heatmap" && (
-            <span className="text-amber-400 font-medium">Heatmap shows high-compression discrepancy zones (JET colormap)</span>
+            <span className="text-coral font-black text-[10px] ml-1">
+              (JET Heatmap: Compression Delta)
+            </span>
           )}
         </div>
-        <div className="hidden sm:block text-slate-500">
-          Scroll or drag to reposition • Click field to highlight
+        <div className="hidden sm:block text-ink/60 text-[11px] font-semibold">
+          Drag to reposition • Click field to highlight
         </div>
       </div>
     </div>

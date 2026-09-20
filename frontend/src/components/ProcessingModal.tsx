@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { CheckCircle2, Loader2, Circle, ShieldCheck } from "lucide-react";
+import React from "react";
+import { CheckCircle2, Loader2, Circle } from "lucide-react";
+import { Modal } from "./ui/Modal";
+import { Badge } from "./ui/Badge";
 
 interface ProcessingModalProps {
   isOpen: boolean;
@@ -8,8 +10,6 @@ interface ProcessingModalProps {
 }
 
 export const ProcessingModal: React.FC<ProcessingModalProps> = ({ isOpen, step }) => {
-  if (!isOpen) return null;
-
   const steps = [
     { label: "Image Quality & Resolution Assessment", desc: "Checking sharpness, glare, and blur levels" },
     { label: "Document Classification & Template Alignment", desc: "Verifying document boundaries & geometry" },
@@ -21,55 +21,47 @@ export const ProcessingModal: React.FC<ProcessingModalProps> = ({ isOpen, step }
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-      <div className="w-full max-w-lg rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl space-y-6">
-        {/* Header */}
-        <div className="flex items-center space-x-3 border-b border-slate-800 pb-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600/20 border border-blue-500/30 text-blue-400">
-            <Loader2 className="h-5 w-5 animate-spin" />
-          </div>
-          <div>
-            <h3 className="text-base font-bold text-white tracking-tight">ANALYZING DOCUMENT</h3>
-            <p className="text-xs text-slate-400">Executing multi-layer identity verification pipeline...</p>
-          </div>
-        </div>
-
+    <Modal
+      isOpen={isOpen}
+      preventClose={true}
+      showCloseButton={false}
+      title="ANALYZING DOCUMENT"
+      description="Executing multi-layer identity verification pipeline..."
+      maxWidth="lg"
+      headerIcon={<Loader2 className="h-6 w-6 animate-spin text-ink stroke-[2.5]" />}
+    >
+      <div className="space-y-4">
         {/* Step-by-Step Progress List */}
-        <div className="space-y-3">
+        <div className="space-y-2.5" role="status" aria-live="polite">
           {steps.map((s, idx) => {
             const isCompleted = step > idx;
             const isCurrent = step === idx;
-            const isPending = step < idx;
 
             return (
               <div
                 key={idx}
-                className={`flex items-start space-x-3 p-2.5 rounded-xl transition-all ${
+                className={`flex items-start space-x-3 p-2.5 rounded-xl border-2 border-ink transition-all ${
                   isCurrent
-                    ? "bg-blue-600/10 border border-blue-500/30"
+                    ? "bg-blue shadow-neo-sm scale-[1.01]"
                     : isCompleted
-                    ? "bg-slate-950/40"
-                    : "opacity-40"
+                    ? "bg-mint/40"
+                    : "bg-[#FFFDF7] opacity-45"
                 }`}
               >
                 <div className="mt-0.5">
                   {isCompleted ? (
-                    <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                    <CheckCircle2 className="h-4 w-4 text-emerald-800 stroke-[2.5]" />
                   ) : isCurrent ? (
-                    <Loader2 className="h-4 w-4 text-blue-400 animate-spin" />
+                    <Loader2 className="h-4 w-4 text-ink animate-spin stroke-[2.5]" />
                   ) : (
-                    <Circle className="h-4 w-4 text-slate-600" />
+                    <Circle className="h-4 w-4 text-ink/40 stroke-[2.5]" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div
-                    className={`text-xs font-semibold ${
-                      isCompleted ? "text-slate-200" : isCurrent ? "text-blue-300" : "text-slate-500"
-                    }`}
-                  >
+                  <div className="text-xs font-extrabold text-ink">
                     {s.label}
                   </div>
-                  <div className="text-[11px] text-slate-400 truncate">{s.desc}</div>
+                  <div className="text-[11px] font-semibold text-ink/70 truncate">{s.desc}</div>
                 </div>
               </div>
             );
@@ -77,11 +69,13 @@ export const ProcessingModal: React.FC<ProcessingModalProps> = ({ isOpen, step }
         </div>
 
         {/* Footer info */}
-        <div className="flex items-center justify-between text-[11px] text-slate-500 pt-2 border-t border-slate-800">
-          <span>Estimated latency: ~3.4s</span>
-          <span className="font-mono text-blue-400">Pipeline Step {Math.min(step + 1, 7)} / 7</span>
+        <div className="flex items-center justify-between text-xs font-bold text-ink/70 pt-3 border-t-2 border-ink">
+          <span>Estimated pipeline latency: ~3.4s</span>
+          <Badge variant="lavender">
+            Step {Math.min(step + 1, 7)} of 7
+          </Badge>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 };

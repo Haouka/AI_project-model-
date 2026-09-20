@@ -15,6 +15,10 @@ from sqlalchemy.orm import relationship
 from backend.database.db import Base
 
 
+def utc_now():
+    return datetime.datetime.now(datetime.timezone.utc)
+
+
 class UserRole(str, enum.Enum):
     ADMIN = "ADMIN"
     SUPERVISOR = "SUPERVISOR"
@@ -82,7 +86,7 @@ class User(Base):
     full_name = Column(String(100), nullable=False)
     role = Column(SQLEnum(UserRole), default=UserRole.REVIEWER, nullable=False)
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now)
 
     reviews = relationship("ReviewAction", back_populates="user")
     audit_events = relationship("AuditEvent", back_populates="user")
@@ -106,8 +110,8 @@ class Case(Base):
     reviewer_outcome = Column(String(100), nullable=True)
     review_notes = Column(Text, nullable=True)
 
-    created_at = Column(DateTime, default=datetime.datetime.utcnow, index=True)
-    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now, index=True)
+    updated_at = Column(DateTime, default=utc_now, onupdate=utc_now)
 
     documents = relationship("Document", back_populates="case", cascade="all, delete-orphan")
     fields = relationship("DocumentField", back_populates="case", cascade="all, delete-orphan")
@@ -130,7 +134,7 @@ class Document(Base):
     mime_type = Column(String(50), nullable=False)
     file_hash = Column(String(64), nullable=True)
     is_live_face = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now)
 
     case = relationship("Case", back_populates="documents")
 
@@ -151,7 +155,7 @@ class DocumentField(Base):
     bbox_h = Column(Float, nullable=True)
     is_mrz = Column(Boolean, default=False)
     validation_status = Column(String(20), default="VALID")
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now)
 
     case = relationship("Case", back_populates="fields")
 
@@ -169,7 +173,7 @@ class ValidationResult(Base):
     severity = Column(SQLEnum(RuleSeverity), nullable=False)
     explanation = Column(Text, nullable=False)
     evidence_json = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now)
 
     case = relationship("Case", back_populates="validation_results")
 
@@ -186,7 +190,7 @@ class TamperResult(Base):
     heatmap_path = Column(String(300), nullable=True)
     explanation = Column(Text, nullable=False)
     evidence_regions_json = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now)
 
     case = relationship("Case", back_populates="tamper_results")
 
@@ -204,7 +208,7 @@ class FaceResult(Base):
     explanation = Column(Text, nullable=False)
     doc_portrait_path = Column(String(300), nullable=True)
     live_photo_path = Column(String(300), nullable=True)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now)
 
     case = relationship("Case", back_populates="face_results")
 
@@ -244,7 +248,7 @@ class ReviewAction(Base):
     action = Column(String(50), nullable=False)  # CLEAR, REQUEST_BETTER_IMAGE, ESCALATE, RECORD_OUTCOME
     reason = Column(String(200), nullable=True)
     notes = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now)
 
     case = relationship("Case", back_populates="review_actions")
     user = relationship("User", back_populates="reviews")
@@ -260,7 +264,7 @@ class AuditEvent(Base):
     status = Column(String(50), default="SUCCESS")
     details_json = Column(Text, nullable=True)
     ip_address = Column(String(45), nullable=True)
-    timestamp = Column(DateTime, default=datetime.datetime.utcnow, index=True)
+    timestamp = Column(DateTime, default=utc_now, index=True)
 
     case = relationship("Case", back_populates="audit_events")
     user = relationship("User", back_populates="audit_events")
