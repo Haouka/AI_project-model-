@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Upload, X, Camera, Sparkles, FileText, CheckCircle2, AlertCircle } from "lucide-react";
+import { Upload, X, Camera, Sparkles, CheckCircle2 } from "lucide-react";
 import { DemoPreset } from "../types";
 import { api } from "../api/client";
+import { Modal } from "./ui/Modal";
+import { Button } from "./ui/Button";
+import { Badge } from "./ui/Badge";
 
 interface NewScreeningModalProps {
   isOpen: boolean;
@@ -28,8 +31,6 @@ export const NewScreeningModal: React.FC<NewScreeningModalProps> = ({
     }
   }, [isOpen]);
 
-  if (!isOpen) return null;
-
   const handleDocChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -51,7 +52,6 @@ export const NewScreeningModal: React.FC<NewScreeningModalProps> = ({
   const handleSelectPreset = async (preset: DemoPreset) => {
     try {
       setDocType(preset.document_type);
-      // Fetch the preset image from static backend
       const res = await fetch(`/api/v1/storage/demo/${preset.document_file}`);
       const blob = await res.blob();
       const file = new File([blob], preset.document_file, { type: "image/jpeg" });
@@ -82,47 +82,37 @@ export const NewScreeningModal: React.FC<NewScreeningModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-4 overflow-y-auto">
-      <div className="w-full max-w-3xl rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl relative space-y-6 my-8">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-          <div>
-            <h2 className="text-lg font-bold text-white tracking-tight">New Document Screening</h2>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Upload passport, visa, or identity card for automated multi-stage AI analysis.
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="New Document Screening"
+      description="Upload passport, visa, or identity card for automated multi-stage AI analysis."
+      maxWidth="3xl"
+    >
+      <div className="space-y-6">
         {/* Quick-Select Demo Presets */}
         <div className="space-y-2">
-          <span className="text-xs font-semibold text-indigo-400 flex items-center gap-1.5">
-            <Sparkles className="h-4 w-4" />
-            Quick Demo Presets (1-Click Test):
-          </span>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div className="flex items-center space-x-1.5 text-xs font-black text-ink uppercase tracking-wider">
+            <Sparkles className="h-4 w-4 text-ink" />
+            <span>Quick Demo Presets (1-Click Test):</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {demoPresets.map((p) => (
               <button
                 key={p.id}
                 type="button"
                 onClick={() => handleSelectPreset(p)}
-                className="text-left p-3 rounded-xl border border-slate-800 bg-slate-950/70 hover:border-indigo-500/50 hover:bg-slate-950 transition-all group"
+                className="text-left p-3 rounded-xl border-2 border-ink bg-[#FFFDF7] hover:bg-yellow-50 shadow-neo-sm hover:shadow-neo active:translate-x-[1px] active:translate-y-[1px] transition-all group cursor-pointer"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-200 group-hover:text-indigo-300">
+                  <span className="text-xs font-black text-ink group-hover:text-coral transition-colors">
                     {p.title}
                   </span>
-                  <span className="text-[10px] font-mono rounded bg-slate-800 px-1.5 py-0.5 text-slate-400">
+                  <Badge variant="lavender">
                     {p.document_type}
-                  </span>
+                  </Badge>
                 </div>
-                <p className="text-[11px] text-slate-400 mt-1 line-clamp-2 leading-relaxed">
+                <p className="text-[11px] font-semibold text-ink/70 mt-1 line-clamp-2 leading-relaxed">
                   {p.description}
                 </p>
               </button>
@@ -133,19 +123,19 @@ export const NewScreeningModal: React.FC<NewScreeningModalProps> = ({
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Document Type Selection */}
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+            <label className="block text-xs font-black uppercase tracking-wider text-ink mb-2">
               Document Classification:
             </label>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-2.5">
               {["PASSPORT", "VISA", "NATIONAL_ID"].map((t) => (
                 <button
                   key={t}
                   type="button"
                   onClick={() => setDocType(t)}
-                  className={`py-2 px-3 rounded-xl text-xs font-semibold border transition-all ${
+                  className={`py-2 px-3 rounded-xl text-xs font-black border-2 border-ink transition-all cursor-pointer ${
                     docType === t
-                      ? "border-blue-500 bg-blue-600/20 text-white shadow-sm shadow-blue-500/20"
-                      : "border-slate-800 bg-slate-950 text-slate-400 hover:text-slate-200"
+                      ? "bg-coral text-white shadow-neo"
+                      : "bg-[#FFFDF7] text-ink shadow-neo-sm hover:bg-yellow-50"
                   }`}
                 >
                   {t.replace("_", " ")}
@@ -158,36 +148,39 @@ export const NewScreeningModal: React.FC<NewScreeningModalProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Primary Document Upload */}
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                1. Primary Document Image: <span className="text-rose-400">*</span>
+              <label className="block text-xs font-black uppercase tracking-wider text-ink mb-1.5">
+                1. Primary Document Image: <span className="text-coral">*</span>
               </label>
-              <div className="relative rounded-2xl border-2 border-dashed border-slate-700 bg-slate-950/80 p-4 text-center hover:border-blue-500 transition-colors">
+              <div className="relative rounded-2xl border-2 border-dashed border-ink bg-[#FFFDF7] p-4 text-center hover:bg-yellow-50 transition-colors">
                 {docPreview ? (
                   <div className="relative">
                     <img
                       src={docPreview}
                       alt="Document preview"
-                      className="max-h-40 mx-auto rounded-lg object-contain shadow-md"
+                      className="max-h-40 mx-auto rounded-xl object-contain border-2 border-ink shadow-neo-sm"
                     />
                     <button
                       type="button"
+                      aria-label="Remove document"
                       onClick={() => {
                         setDocFile(null);
                         setDocPreview(null);
                         setQualityFeedback(null);
                       }}
-                      className="absolute -top-2 -right-2 p-1 bg-rose-600 text-white rounded-full hover:bg-rose-500 shadow"
+                      className="absolute -top-2 -right-2 p-1 bg-coral text-white rounded-lg border border-ink hover:bg-coral-600 shadow cursor-pointer"
                     >
-                      <X className="h-3.5 w-3.5" />
+                      <X className="h-3.5 w-3.5 stroke-[2.5]" />
                     </button>
                   </div>
                 ) : (
                   <div className="py-6 flex flex-col items-center justify-center space-y-2">
-                    <Upload className="h-8 w-8 text-slate-500" />
-                    <span className="text-xs font-medium text-slate-300">
+                    <div className="p-2.5 rounded-xl bg-blue border-2 border-ink shadow-neo-sm">
+                      <Upload className="h-6 w-6 text-ink stroke-[2.5]" />
+                    </div>
+                    <span className="text-xs font-extrabold text-ink">
                       Drag & drop document or browse
                     </span>
-                    <span className="text-[10px] text-slate-500">
+                    <span className="text-[10px] font-bold text-ink/60">
                       JPG, PNG, WebP up to 20MB
                     </span>
                   </div>
@@ -197,13 +190,14 @@ export const NewScreeningModal: React.FC<NewScreeningModalProps> = ({
                   accept="image/*"
                   onChange={handleDocChange}
                   className="absolute inset-0 opacity-0 cursor-pointer"
+                  aria-label="Upload document image"
                 />
               </div>
 
               {/* Quality Assessment Feedback */}
               {qualityFeedback && (
-                <div className="mt-2 flex items-center space-x-1.5 text-[11px] text-emerald-400">
-                  <CheckCircle2 className="h-3.5 w-3.5" />
+                <div className="mt-2 flex items-center space-x-1.5 text-[11px] font-bold text-emerald-800 bg-mint/50 px-2.5 py-1 rounded-lg border border-ink">
+                  <CheckCircle2 className="h-3.5 w-3.5 stroke-[2.5]" />
                   <span>{qualityFeedback}</span>
                 </div>
               )}
@@ -211,36 +205,39 @@ export const NewScreeningModal: React.FC<NewScreeningModalProps> = ({
 
             {/* Optional Live Face Photo */}
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                2. Presented / Live Portrait: <span className="text-slate-500">(Optional Biometrics)</span>
+              <label className="block text-xs font-black uppercase tracking-wider text-ink mb-1.5">
+                2. Live Portrait: <span className="text-ink/60 font-semibold">(Optional Face Match)</span>
               </label>
-              <div className="relative rounded-2xl border-2 border-dashed border-slate-700 bg-slate-950/80 p-4 text-center hover:border-blue-500 transition-colors">
+              <div className="relative rounded-2xl border-2 border-dashed border-ink bg-[#FFFDF7] p-4 text-center hover:bg-yellow-50 transition-colors">
                 {livePreview ? (
                   <div className="relative">
                     <img
                       src={livePreview}
                       alt="Live preview"
-                      className="max-h-40 mx-auto rounded-lg object-contain shadow-md"
+                      className="max-h-40 mx-auto rounded-xl object-contain border-2 border-ink shadow-neo-sm"
                     />
                     <button
                       type="button"
+                      aria-label="Remove live portrait"
                       onClick={() => {
                         setLiveFile(null);
                         setLivePreview(null);
                       }}
-                      className="absolute -top-2 -right-2 p-1 bg-rose-600 text-white rounded-full hover:bg-rose-500 shadow"
+                      className="absolute -top-2 -right-2 p-1 bg-coral text-white rounded-lg border border-ink hover:bg-coral-600 shadow cursor-pointer"
                     >
-                      <X className="h-3.5 w-3.5" />
+                      <X className="h-3.5 w-3.5 stroke-[2.5]" />
                     </button>
                   </div>
                 ) : (
                   <div className="py-6 flex flex-col items-center justify-center space-y-2">
-                    <Camera className="h-8 w-8 text-slate-500" />
-                    <span className="text-xs font-medium text-slate-300">
+                    <div className="p-2.5 rounded-xl bg-lavender border-2 border-ink shadow-neo-sm">
+                      <Camera className="h-6 w-6 text-ink stroke-[2.5]" />
+                    </div>
+                    <span className="text-xs font-extrabold text-ink">
                       Add live traveler photo
                     </span>
-                    <span className="text-[10px] text-slate-500">
-                      Enables facial comparison verification
+                    <span className="text-[10px] font-bold text-ink/60">
+                      Enables biometric comparison
                     </span>
                   </div>
                 )}
@@ -249,30 +246,33 @@ export const NewScreeningModal: React.FC<NewScreeningModalProps> = ({
                   accept="image/*"
                   onChange={handleLiveChange}
                   className="absolute inset-0 opacity-0 cursor-pointer"
+                  aria-label="Upload live traveler photo"
                 />
               </div>
             </div>
           </div>
 
-          {/* Submit Button */}
-          <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-800">
-            <button
+          {/* Submit Buttons */}
+          <div className="flex items-center justify-end space-x-3 pt-4 border-t-2 border-ink">
+            <Button
               type="button"
+              variant="outline"
+              size="md"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition-colors"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
+              variant="coral"
+              size="md"
               disabled={!docFile}
-              className="px-5 py-2.5 bg-blue-600 text-white text-xs font-bold rounded-xl shadow-lg shadow-blue-600/30 hover:bg-blue-500 transition-all disabled:opacity-40 disabled:pointer-events-none"
             >
               Start Automated AI Screening
-            </button>
+            </Button>
           </div>
         </form>
       </div>
-    </div>
+    </Modal>
   );
 };

@@ -1,5 +1,6 @@
 import React from "react";
 import { AlertTriangle, Clock, CheckCircle2, ShieldCheck, Flame } from "lucide-react";
+import { Card } from "./ui/Card";
 
 interface DashboardStatsProps {
   stats: {
@@ -14,78 +15,120 @@ interface DashboardStatsProps {
 
 export const DashboardStats: React.FC<DashboardStatsProps> = ({ stats, onFilterClick }) => {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
-      {/* Active Processing */}
-      <div
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 mb-6">
+      {/* 1. Active Processing */}
+      <Card
+        variant="pastel"
+        pastelBg="blue"
+        interactive={true}
         onClick={() => onFilterClick && onFilterClick("PROCESSING")}
-        className="cursor-pointer group relative overflow-hidden rounded-xl border border-slate-800 bg-slate-900/60 p-4 transition-all hover:border-blue-500/50 hover:bg-slate-900"
+        className="p-4"
       >
         <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-slate-400">ACTIVE CASES</span>
-          <Clock className="h-4 w-4 text-blue-400" />
+          <span className="text-[11px] font-black uppercase tracking-wider text-ink">
+            Active Cases
+          </span>
+          <div className="p-1 rounded-lg bg-white border-2 border-ink shadow-[1px_1px_0_#171717]">
+            <Clock className="h-3.5 w-3.5 text-ink stroke-[2.5]" />
+          </div>
         </div>
-        <div className="mt-2 flex items-baseline space-x-2">
-          <span className="text-2xl font-bold tracking-tight text-white">{stats.active_cases}</span>
-          <span className="text-xs text-blue-400 font-medium">In pipeline</span>
+        <div className="mt-3">
+          <div className="font-display text-3xl font-black tracking-tight text-ink">
+            {stats.active_cases}
+          </div>
+          <p className="text-xs font-bold text-ink/75 mt-0.5">In inspection pipeline</p>
         </div>
-      </div>
+      </Card>
 
-      {/* Needs Review */}
-      <div
+      {/* 2. Needs Review */}
+      <Card
+        variant="pastel"
+        pastelBg="orange"
+        interactive={true}
         onClick={() => onFilterClick && onFilterClick("NEEDS_REVIEW")}
-        className="cursor-pointer group relative overflow-hidden rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 transition-all hover:border-amber-500/50 hover:bg-amber-500/10"
+        className="p-4"
       >
         <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-amber-300">NEEDS REVIEW</span>
-          <AlertTriangle className="h-4 w-4 text-amber-400" />
+          <span className="text-[11px] font-black uppercase tracking-wider text-ink">
+            Needs Review
+          </span>
+          <div className="p-1 rounded-lg bg-white border-2 border-ink shadow-[1px_1px_0_#171717]">
+            <AlertTriangle className="h-3.5 w-3.5 text-ink stroke-[2.5]" />
+          </div>
         </div>
-        <div className="mt-2 flex items-baseline space-x-2">
-          <span className="text-2xl font-bold tracking-tight text-amber-200">{stats.needs_review}</span>
-          <span className="text-xs text-amber-400/80 font-medium">Officer action</span>
+        <div className="mt-3">
+          <div className="font-display text-3xl font-black tracking-tight text-ink">
+            {stats.needs_review}
+          </div>
+          <p className="text-xs font-bold text-ink/75 mt-0.5">Awaiting officer decision</p>
         </div>
-      </div>
+      </Card>
 
-      {/* High Priority Review */}
-      <div
+      {/* 3. High Priority Review */}
+      <Card
+        variant="pastel"
+        pastelBg="coral"
+        interactive={true}
         onClick={() => onFilterClick && onFilterClick("HIGH_PRIORITY")}
-        className="cursor-pointer group relative overflow-hidden rounded-xl border border-rose-500/20 bg-rose-500/5 p-4 transition-all hover:border-rose-500/50 hover:bg-rose-500/10"
+        className="p-4 text-white"
       >
         <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-rose-300">HIGH PRIORITY</span>
-          <Flame className="h-4 w-4 text-rose-400" />
+          <span className="text-[11px] font-black uppercase tracking-wider text-white">
+            High Priority
+          </span>
+          <div className="p-1 rounded-lg bg-white border-2 border-ink shadow-[1px_1px_0_#171717]">
+            <Flame className="h-3.5 w-3.5 text-coral stroke-[2.5]" />
+          </div>
         </div>
-        <div className="mt-2 flex items-baseline space-x-2">
-          <span className="text-2xl font-bold tracking-tight text-rose-200">{stats.high_priority}</span>
-          <span className="text-xs text-rose-400/80 font-medium">Anomalies flagged</span>
+        <div className="mt-3">
+          <div className="font-display text-3xl font-black tracking-tight text-white">
+            {stats.high_priority}
+          </div>
+          <p className="text-xs font-bold text-white/90 mt-0.5">Anomalies & flags</p>
         </div>
-      </div>
+      </Card>
 
-      {/* Completed */}
-      <div
+      {/* 4. Completed */}
+      <Card
+        variant="pastel"
+        pastelBg="mint"
+        interactive={true}
         onClick={() => onFilterClick && onFilterClick("COMPLETED")}
-        className="cursor-pointer group relative overflow-hidden rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 transition-all hover:border-emerald-500/50 hover:bg-emerald-500/10"
+        className="p-4"
       >
         <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-emerald-300">COMPLETED</span>
-          <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+          <span className="text-[11px] font-black uppercase tracking-wider text-ink">
+            Completed
+          </span>
+          <div className="p-1 rounded-lg bg-white border-2 border-ink shadow-[1px_1px_0_#171717]">
+            <CheckCircle2 className="h-3.5 w-3.5 text-ink stroke-[2.5]" />
+          </div>
         </div>
-        <div className="mt-2 flex items-baseline space-x-2">
-          <span className="text-2xl font-bold tracking-tight text-emerald-200">{stats.completed}</span>
-          <span className="text-xs text-emerald-400/80 font-medium">Cleared</span>
+        <div className="mt-3">
+          <div className="font-display text-3xl font-black tracking-tight text-ink">
+            {stats.completed}
+          </div>
+          <p className="text-xs font-bold text-ink/75 mt-0.5">Cleared & recorded</p>
         </div>
-      </div>
+      </Card>
 
-      {/* Average Turnaround */}
-      <div className="relative overflow-hidden rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+      {/* 5. Average Latency */}
+      <Card variant="pastel" pastelBg="lavender" className="p-4">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-slate-400">AVG LATENCY</span>
-          <ShieldCheck className="h-4 w-4 text-indigo-400" />
+          <span className="text-[11px] font-black uppercase tracking-wider text-ink">
+            Avg Latency
+          </span>
+          <div className="p-1 rounded-lg bg-white border-2 border-ink shadow-[1px_1px_0_#171717]">
+            <ShieldCheck className="h-3.5 w-3.5 text-ink stroke-[2.5]" />
+          </div>
         </div>
-        <div className="mt-2 flex items-baseline space-x-2">
-          <span className="text-2xl font-bold tracking-tight text-white">~3.4s</span>
-          <span className="text-xs text-indigo-400 font-medium">End-to-end</span>
+        <div className="mt-3">
+          <div className="font-display text-3xl font-black tracking-tight text-ink">
+            ~3.4s
+          </div>
+          <p className="text-xs font-bold text-ink/75 mt-0.5">End-to-end pipeline</p>
         </div>
-      </div>
+      </Card>
     </div>
   );
 };

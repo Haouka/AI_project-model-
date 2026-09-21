@@ -4,25 +4,103 @@
 
 @layer base {
   body {
-    @apply bg-slate-950 text-slate-100 font-sans antialiased;
-    color-scheme: dark;
+    background-color: #FFFDF7;
+    color: #171717;
+    font-family: 'Plus Jakarta Sans', Inter, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color-scheme: light;
+  }
+
+  /* Focus visible accessibility */
+  :focus-visible {
+    outline: 2px solid #171717;
+    outline-offset: 2px;
   }
 }
 
-/* Custom scrollbars */
+@layer utilities {
+  .bg-cream {
+    background-color: #FFFDF7;
+  }
+  .text-ink {
+    color: #171717;
+  }
+  .border-ink {
+    border-color: #171717;
+  }
+}
+
+/* Custom Soft Neo-Brutalist scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.6);
+  background: #FFFDF7;
+  border-left: 2px solid #171717;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(71, 85, 105, 0.6);
+  background: #171717;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(100, 116, 139, 0.9);
+  background: #FF6B57;
+}
+
+/* Neo-Brutalist Component Tokens */
+.neo-card {
+  border: 2px solid #171717;
+  border-radius: 1rem;
+  background-color: #FFFFFF;
+  box-shadow: 4px 4px 0 #171717;
+  transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
+}
+
+.neo-card-lg {
+  border: 3px solid #171717;
+  border-radius: 1.25rem;
+  background-color: #FFFFFF;
+  box-shadow: 6px 6px 0 #171717;
+}
+
+.neo-btn {
+  border: 2px solid #171717;
+  border-radius: 0.75rem;
+  font-weight: 700;
+  box-shadow: 3px 3px 0 #171717;
+  transition: transform 0.1s ease-out, box-shadow 0.1s ease-out, background-color 0.15s ease-out;
+  user-select: none;
+}
+
+.neo-btn:hover:not(:disabled) {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 #171717;
+}
+
+.neo-btn:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 #171717;
+}
+
+.neo-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: 2px 2px 0 #171717;
+}
+
+.neo-input {
+  border: 2px solid #171717;
+  border-radius: 0.75rem;
+  background-color: #FFFFFF;
+  color: #171717;
+  box-shadow: 2px 2px 0 #171717;
+  transition: box-shadow 0.15s ease-out, border-color 0.15s ease-out;
+}
+
+.neo-input:focus {
+  outline: none;
+  box-shadow: 4px 4px 0 #171717;
 }
 
 .mono-font {

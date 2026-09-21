@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Database, ShieldCheck, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { api } from "../api/client";
+import { Badge } from "./ui/Badge";
+import { Card } from "./ui/Card";
 
 export const RulesCatalog: React.FC = () => {
   const [rules, setRules] = useState<any[]>([]);
@@ -16,56 +17,85 @@ export const RulesCatalog: React.FC = () => {
   }, []);
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-4">
+    <div className="space-y-6" role="region" aria-label="Rule definitions and validation catalog">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-ink pb-4">
         <div>
-          <h2 className="text-xl font-bold tracking-tight text-white">Rule Definitions & Validation Catalog</h2>
-          <p className="text-xs text-slate-400 mt-1">
+          <h2 className="font-display text-2xl font-black tracking-tight text-ink">
+            Rule Definitions & Validation Catalog
+          </h2>
+          <p className="text-xs font-bold text-ink/70 mt-1">
             Configurable deterministic checks applied across identity documents and Machine Readable Zones.
           </p>
         </div>
-        <span className="rounded-xl border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-mono text-blue-400 self-start">
-          Rule Set: {version}
-        </span>
+        <Badge variant="lavender" className="self-start text-xs py-1.5 px-3">
+          Active Version: {version}
+        </Badge>
       </div>
 
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/60 overflow-hidden shadow-xl">
-        <table className="w-full text-left text-xs">
-          <thead className="border-b border-slate-800 bg-slate-950 text-slate-400 text-[11px] uppercase tracking-wider">
+      {/* Desktop Table View */}
+      <Card variant="default" className="overflow-hidden hidden md:block">
+        <table className="w-full text-left text-xs border-collapse" aria-label="Rules Catalog Table">
+          <thead className="border-b-2 border-ink bg-[#FFFDF7] text-ink text-[11px] font-black uppercase tracking-wider">
             <tr>
-              <th className="py-3 px-4 font-semibold">Rule ID</th>
-              <th className="py-3 px-4 font-semibold">Document</th>
-              <th className="py-3 px-4 font-semibold">Rule Name</th>
-              <th className="py-3 px-4 font-semibold">Category</th>
-              <th className="py-3 px-4 font-semibold">Severity</th>
-              <th className="py-3 px-4 font-semibold">Description</th>
+              <th scope="col" className="py-3.5 px-4">Rule ID</th>
+              <th scope="col" className="py-3.5 px-4">Document</th>
+              <th scope="col" className="py-3.5 px-4">Rule Name</th>
+              <th scope="col" className="py-3.5 px-4">Category</th>
+              <th scope="col" className="py-3.5 px-4">Severity</th>
+              <th scope="col" className="py-3.5 px-4">Description</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/60">
+          <tbody className="divide-y-2 divide-ink/10">
             {rules.map((r) => (
-              <tr key={r.rule_id} className="hover:bg-slate-800/40 transition-colors">
-                <td className="py-3 px-4 font-mono font-bold text-blue-400">{r.rule_id}</td>
-                <td className="py-3 px-4 text-slate-300 font-medium">{r.document_type}</td>
-                <td className="py-3 px-4 font-semibold text-slate-100">{r.name}</td>
-                <td className="py-3 px-4 text-slate-400 font-mono text-[11px]">{r.category}</td>
-                <td className="py-3 px-4">
-                  <span
-                    className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase ${
-                      r.severity === "CRITICAL"
-                        ? "bg-rose-500/20 text-rose-300 border border-rose-500/30"
-                        : "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                    }`}
-                  >
-                    {r.severity}
+              <tr key={r.rule_id} className="hover:bg-yellow-50/60 transition-colors">
+                <td className="py-3 px-4 font-mono font-black text-ink">
+                  <span className="rounded bg-[#FFFDF7] px-1.5 py-0.5 border border-ink shadow-[1px_1px_0_#171717]">
+                    {r.rule_id}
                   </span>
                 </td>
-                <td className="py-3 px-4 text-slate-300 text-[11px] leading-relaxed max-w-md">
+                <td className="py-3 px-4 font-extrabold text-ink">
+                  <Badge variant="blue">
+                    {r.document_type}
+                  </Badge>
+                </td>
+                <td className="py-3 px-4 font-black text-ink">{r.name}</td>
+                <td className="py-3 px-4 text-ink font-mono font-bold text-[11px]">{r.category}</td>
+                <td className="py-3 px-4">
+                  <Badge variant={r.severity === "CRITICAL" ? "coral" : "orange"}>
+                    {r.severity}
+                  </Badge>
+                </td>
+                <td className="py-3 px-4 text-ink/80 font-bold text-[11px] leading-relaxed max-w-md">
                   {r.description}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+      </Card>
+
+      {/* Mobile Card List View (< md) */}
+      <div className="grid grid-cols-1 gap-3 md:hidden">
+        {rules.map((r) => (
+          <Card key={r.rule_id} className="p-4 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <span className="font-mono font-black text-xs bg-[#FFFDF7] px-2 py-0.5 rounded border border-ink shadow-[1px_1px_0_#171717]">
+                {r.rule_id}
+              </span>
+              <Badge variant={r.severity === "CRITICAL" ? "coral" : "orange"}>
+                {r.severity}
+              </Badge>
+            </div>
+            <div>
+              <h4 className="font-black text-ink text-sm">{r.name}</h4>
+              <p className="text-xs text-ink/75 font-semibold mt-1 leading-relaxed">{r.description}</p>
+            </div>
+            <div className="flex items-center justify-between pt-2 border-t border-ink/15 text-[11px] font-bold">
+              <Badge variant="blue">{r.document_type}</Badge>
+              <span className="text-ink/60 font-mono">Category: {r.category}</span>
+            </div>
+          </Card>
+        ))}
       </div>
     </div>
   );

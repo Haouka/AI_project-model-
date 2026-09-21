@@ -1,5 +1,8 @@
 import React, { useState } from "react";
-import { Check, Camera, AlertOctagon, FileCheck, Send, MessageSquare } from "lucide-react";
+import { Check, Camera, AlertOctagon, MessageSquare, ShieldAlert } from "lucide-react";
+import { Button } from "./ui/Button";
+import { Input } from "./ui/Input";
+import { Modal } from "./ui/Modal";
 
 interface ReviewActionsProps {
   caseId: string;
@@ -27,97 +30,123 @@ export const ReviewActions: React.FC<ReviewActionsProps> = ({
   };
 
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-900/80 backdrop-blur-md p-4 shadow-xl">
-      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-        {/* Notes Input Area */}
-        <div className="flex-1 w-full relative">
-          <div className="flex items-center space-x-1.5 text-xs text-slate-400 mb-1.5 font-medium">
-            <MessageSquare className="h-3.5 w-3.5 text-blue-400" />
-            <span>Reviewer Findings & Audit Notes:</span>
-          </div>
-          <input
-            type="text"
-            placeholder="Add official screening comments, physical inspection observations, or reason for escalation..."
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            className="w-full rounded-xl border border-slate-700 bg-slate-950 py-2.5 px-3.5 text-xs text-white placeholder-slate-500 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
-          />
-        </div>
+    <div
+      className="rounded-2xl border-2 border-ink bg-white p-4 shadow-neo space-y-3"
+      role="region"
+      aria-label="Review actions and decision toolbar"
+    >
+      {/* Title Header - Aligned with the input below it */}
+      <div className="flex items-center space-x-2 text-xs font-black uppercase tracking-wider text-ink">
+        <MessageSquare className="h-4 w-4 text-ink stroke-[2.5]" />
+        <span>Reviewer Findings & Audit Notes:</span>
+      </div>
 
-        {/* Action Decision Buttons */}
-        <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
-          {/* Request Better Image */}
-          <button
-            onClick={() => handleActionClick("REQUEST_BETTER_IMAGE")}
-            disabled={isSubmitting}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center space-x-1.5 rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-2.5 text-xs font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-all disabled:opacity-50"
-          >
-            <Camera className="h-4 w-4 text-amber-400" />
-            <span>Request Better Image</span>
-          </button>
+      {/* Full-width Comment Input */}
+      <div className="w-full">
+        <input
+          type="text"
+          placeholder="Add officer comments, physical inspection observations, or reason for decision..."
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          disabled={isSubmitting}
+          className="w-full h-10 rounded-xl border-2 border-ink bg-[#FFFDF7] px-3.5 text-xs font-bold text-ink placeholder:text-ink/40 shadow-neo-sm focus:shadow-neo focus:outline-none transition-all"
+        />
+      </div>
 
-          {/* Escalate */}
-          <button
-            onClick={() => handleActionClick("ESCALATE")}
-            disabled={isSubmitting}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center space-x-1.5 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3.5 py-2.5 text-xs font-semibold text-rose-300 hover:bg-rose-500/20 hover:border-rose-500/50 transition-all disabled:opacity-50"
-          >
-            <AlertOctagon className="h-4 w-4 text-rose-400" />
-            <span>Escalate Case</span>
-          </button>
+      {/* Action Decision Buttons: Single cohesive flex row with identical height, baseline, and 12px gap */}
+      <div className="flex flex-wrap items-center justify-end gap-3 pt-0.5">
+        {/* Request Better Image */}
+        <Button
+          type="button"
+          variant="orange"
+          size="md"
+          icon={<Camera className="h-4 w-4 stroke-[2.5]" />}
+          onClick={() => handleActionClick("REQUEST_BETTER_IMAGE")}
+          disabled={isSubmitting}
+          className="h-10 px-4 text-xs font-black"
+        >
+          Request Better Image
+        </Button>
 
-          {/* Clear / Approve */}
-          <button
-            onClick={() => handleActionClick("CLEAR")}
-            disabled={isSubmitting}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center space-x-1.5 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-emerald-600/30 hover:bg-emerald-500 transition-all disabled:opacity-50"
-          >
-            <Check className="h-4 w-4" />
-            <span>Clear / Approve</span>
-          </button>
-        </div>
+        {/* Escalate Case */}
+        <Button
+          type="button"
+          variant="coral"
+          size="md"
+          icon={<AlertOctagon className="h-4 w-4 stroke-[2.5]" />}
+          onClick={() => handleActionClick("ESCALATE")}
+          disabled={isSubmitting}
+          className="h-10 px-4 text-xs font-black"
+        >
+          Escalate Case
+        </Button>
+
+        {/* Clear / Approve */}
+        <Button
+          type="button"
+          variant="mint"
+          size="md"
+          icon={<Check className="h-4 w-4 stroke-[3]" />}
+          onClick={() => handleActionClick("CLEAR")}
+          disabled={isSubmitting}
+          className="h-10 px-4 text-xs font-black"
+        >
+          Clear / Approve
+        </Button>
       </div>
 
       {/* Action Confirmation Modal */}
-      {confirmModalAction && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl space-y-4">
-            <h3 className="text-base font-bold text-white">Confirm Review Decision</h3>
-            <p className="text-xs text-slate-300 leading-relaxed">
-              Are you sure you want to record the review outcome as{" "}
-              <strong className="text-blue-400">{confirmModalAction}</strong> for case{" "}
-              <strong className="font-mono text-white">{caseId}</strong>?
+      <Modal
+        isOpen={Boolean(confirmModalAction)}
+        onClose={() => setConfirmModalAction(null)}
+        title="Confirm Review Decision"
+        maxWidth="md"
+        headerIcon={<ShieldAlert className="h-5 w-5 text-coral stroke-[2.5]" />}
+      >
+        <div className="space-y-4">
+          <p className="text-xs font-bold text-ink leading-relaxed">
+            Are you sure you want to record the review outcome as{" "}
+            <span className="rounded bg-lavender px-1.5 py-0.5 border border-ink text-ink font-black">
+              {confirmModalAction}
+            </span>{" "}
+            for case <span className="font-mono font-black text-ink">{caseId}</span>?
+          </p>
+
+          <div className="rounded-xl border-2 border-ink bg-[#FFFDF7] p-3 text-xs shadow-neo-sm">
+            <span className="text-[10px] font-black uppercase text-ink/60 block mb-1">
+              Attached Officer Findings:
+            </span>
+            <p className="text-ink font-bold">
+              {notes ? notes : <span className="italic text-ink/40">No notes provided</span>}
             </p>
+          </div>
 
-            <div className="rounded-xl border border-slate-800 bg-slate-950 p-3 text-xs">
-              <span className="text-slate-400 block mb-1">Attached Officer Note:</span>
-              <p className="text-slate-200 font-medium">
-                {notes ? notes : <span className="italic text-slate-500">No notes provided</span>}
-              </p>
-            </div>
+          <p className="text-[11px] font-semibold text-ink/60">
+            This action will be permanently inscribed into the append-only audit trail with your authenticated credentials.
+          </p>
 
-            <p className="text-[11px] text-slate-500">
-              This action will be permanently recorded in the immutable audit trail with your credential signature.
-            </p>
-
-            <div className="flex items-center justify-end space-x-3 pt-2">
-              <button
-                onClick={() => setConfirmModalAction(null)}
-                className="rounded-xl border border-slate-700 px-4 py-2 text-xs font-semibold text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleConfirm}
-                disabled={isSubmitting}
-                className="rounded-xl bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-500 transition-all shadow-md shadow-blue-600/30"
-              >
-                {isSubmitting ? "Recording..." : "Confirm & Sign"}
-              </button>
-            </div>
+          <div className="flex items-center justify-end space-x-2.5 pt-2 border-t-2 border-ink">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setConfirmModalAction(null)}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="coral"
+              size="sm"
+              loading={isSubmitting}
+              onClick={handleConfirm}
+            >
+              {isSubmitting ? "Recording..." : "Confirm & Sign"}
+            </Button>
           </div>
         </div>
-      )}
+      </Modal>
     </div>
   );
 };

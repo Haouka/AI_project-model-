@@ -1,6 +1,7 @@
 import React from "react";
-import { CheckCircle2, AlertCircle, HelpCircle, FileText, ChevronDown, Check } from "lucide-react";
+import { CheckCircle2, FileText } from "lucide-react";
 import { ExtractedField } from "../types";
+import { Badge } from "./ui/Badge";
 
 interface ExtractedFieldsProps {
   fields: ExtractedField[];
@@ -23,34 +24,47 @@ export const ExtractedFields: React.FC<ExtractedFieldsProps> = ({
       .replace(/\b\w/g, (c) => c.toUpperCase());
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent, fieldName: string) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onSelectField(fieldName);
+    }
+  };
+
   return (
-    <div className="flex flex-col h-full rounded-2xl border border-slate-800 bg-slate-900/60 overflow-hidden shadow-xl">
-      {/* Header */}
-      <div className="p-3.5 border-b border-slate-800 bg-slate-950/80 flex items-center justify-between">
+    <div
+      className="flex flex-col h-full rounded-2xl border-2 border-ink bg-white overflow-hidden shadow-neo"
+      role="region"
+      aria-label="Extracted document fields and MRZ inspector"
+    >
+      {/* Header - Aligned to exact 52px height matching DocumentViewer and EvidencePanel */}
+      <div className="px-4 py-2 border-b-2 border-ink bg-[#FFFDF7] flex items-center justify-between min-h-[52px]">
         <div className="flex items-center space-x-2">
-          <FileText className="h-4 w-4 text-blue-400" />
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-200">
-            Extracted Document Fields
+          <div className="p-1 rounded-lg bg-blue border border-ink shadow-[1px_1px_0_#171717]">
+            <FileText className="h-4 w-4 text-ink stroke-[2.5]" />
+          </div>
+          <h3 className="text-xs font-black uppercase tracking-wider text-ink">
+            Extracted Fields
           </h3>
         </div>
-        <span className="text-[11px] font-mono text-slate-400">
-          {visualFields.length} fields recognized
-        </span>
+        <Badge variant="cream">
+          {visualFields.length} Recognized
+        </Badge>
       </div>
 
       {/* Fields List */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-2">
-        <div className="rounded-xl border border-slate-800 overflow-hidden bg-slate-950/50">
-          <table className="w-full text-left text-xs">
-            <thead className="border-b border-slate-800 bg-slate-950 text-slate-400 text-[10px] uppercase tracking-wider">
+      <div className="flex-1 overflow-y-auto p-3 space-y-3">
+        <div className="rounded-xl border-2 border-ink overflow-hidden bg-white shadow-neo-sm">
+          <table className="w-full text-left text-xs" aria-label="Extracted visual fields">
+            <thead className="border-b-2 border-ink bg-[#FFFDF7] text-ink text-[10px] font-black uppercase tracking-wider">
               <tr>
-                <th className="py-2.5 px-3 font-semibold">Field</th>
-                <th className="py-2.5 px-3 font-semibold">Extracted Value</th>
-                <th className="py-2.5 px-3 font-semibold">Confidence</th>
-                <th className="py-2.5 px-2 font-semibold text-center">Status</th>
+                <th scope="col" className="py-2.5 px-3">Field</th>
+                <th scope="col" className="py-2.5 px-3">Extracted Value</th>
+                <th scope="col" className="py-2.5 px-3">Confidence</th>
+                <th scope="col" className="py-2.5 px-2 text-center">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
+            <tbody className="divide-y divide-ink/15">
               {visualFields.map((f) => {
                 const isSelected = selectedFieldName === f.field_name;
                 const confPercent = Math.round(f.confidence * 100);
@@ -58,38 +72,49 @@ export const ExtractedFields: React.FC<ExtractedFieldsProps> = ({
                 return (
                   <tr
                     key={f.field_name}
+                    tabIndex={0}
                     onClick={() => onSelectField(f.field_name)}
-                    className={`cursor-pointer transition-all ${
+                    onKeyDown={(e) => handleKeyDown(e, f.field_name)}
+                    role="button"
+                    aria-pressed={isSelected}
+                    aria-label={`${formatFieldName(f.field_name)}: ${f.value || 'Not extracted'}, ${confPercent}% confidence`}
+                    className={`cursor-pointer transition-all outline-none focus-visible:bg-yellow-100 ${
                       isSelected
-                        ? "bg-blue-600/20 text-white font-medium ring-1 ring-blue-500/50"
-                        : "hover:bg-slate-800/40 text-slate-300"
+                        ? "bg-orange/30 font-bold shadow-inner"
+                        : "hover:bg-yellow-50/70 text-ink"
                     }`}
                   >
-                    <td className="py-2.5 px-3 font-medium text-slate-400">
+                    <td className="py-2.5 px-3 font-bold text-ink/75">
                       {formatFieldName(f.field_name)}
                     </td>
-                    <td className="py-2.5 px-3 font-mono font-semibold text-slate-100">
-                      {f.value || <span className="text-slate-600 italic">Not extracted</span>}
+                    <td className="py-2.5 px-3 font-mono font-bold text-ink">
+                      {f.value || <span className="text-ink/30 italic">Not extracted</span>}
                     </td>
                     <td className="py-2.5 px-3">
                       <div className="flex items-center space-x-2">
-                        <div className="w-14 h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                        <div
+                          className="w-14 h-2 rounded-full bg-cream border border-ink overflow-hidden"
+                          aria-hidden="true"
+                        >
                           <div
                             className={`h-full rounded-full ${
                               confPercent >= 95
-                                ? "bg-emerald-400"
+                                ? "bg-mint"
                                 : confPercent >= 85
-                                ? "bg-blue-400"
-                                : "bg-amber-400"
+                                ? "bg-blue"
+                                : "bg-orange"
                             }`}
                             style={{ width: `${confPercent}%` }}
                           />
                         </div>
-                        <span className="font-mono text-[10px] text-slate-400">{confPercent}%</span>
+                        <span className="font-mono text-[10px] font-bold text-ink">{confPercent}%</span>
                       </div>
                     </td>
                     <td className="py-2.5 px-2 text-center">
-                      <CheckCircle2 className="h-4 w-4 text-emerald-400 inline-block" />
+                      <CheckCircle2
+                        className="h-4 w-4 text-emerald-600 inline-block stroke-[2.5]"
+                        aria-label="Verified field"
+                      />
                     </td>
                   </tr>
                 );
@@ -100,17 +125,20 @@ export const ExtractedFields: React.FC<ExtractedFieldsProps> = ({
 
         {/* Machine Readable Zone (MRZ) Inspector Card */}
         {mrzFields.length > 0 && (
-          <div className="mt-4 rounded-xl border border-slate-800 bg-slate-950/80 p-3">
+          <div className="rounded-xl border-2 border-ink bg-[#FFFDF7] p-3 shadow-neo-sm">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">
-                MACHINE READABLE ZONE (ICAO 9303)
+              <span className="text-[11px] font-black text-ink uppercase tracking-wider">
+                ICAO 9303 MRZ INSPECTOR
               </span>
-              <span className="rounded bg-emerald-500/10 px-2 py-0.5 text-[10px] font-mono font-semibold text-emerald-400 border border-emerald-500/20">
+              <Badge variant="mint">
                 TD3 FORMAT
-              </span>
+              </Badge>
             </div>
 
-            <div className="bg-slate-900 rounded-lg p-2.5 font-mono text-xs text-blue-300 border border-slate-800 space-y-1 overflow-x-auto select-all">
+            <div
+              className="bg-white rounded-lg p-2.5 font-mono text-xs font-bold text-ink border-2 border-ink space-y-1 overflow-x-auto select-all shadow-inner"
+              aria-label="Machine Readable Zone raw characters"
+            >
               {mrzFields.map((mf, idx) => (
                 <div key={idx} className="tracking-widest whitespace-nowrap">
                   {mf.value}
@@ -118,16 +146,16 @@ export const ExtractedFields: React.FC<ExtractedFieldsProps> = ({
               ))}
             </div>
 
-            <p className="text-[10px] text-slate-500 mt-2">
-              Encodes document number, nationality, date of birth, expiry date, and check digits.
+            <p className="text-[10px] font-bold text-ink/60 mt-2">
+              Encodes document number, nationality, date of birth, expiry date, and composite checksums.
             </p>
           </div>
         )}
       </div>
 
       {/* Footer hint */}
-      <div className="p-2.5 px-4 border-t border-slate-800 bg-slate-950/80 text-[11px] text-slate-500">
-        Click any field row to trace and highlight its source region on the document viewer.
+      <div className="p-2.5 px-4 border-t-2 border-ink bg-[#FFFDF7] text-[11px] font-bold text-ink/60">
+        Click or press Enter on any field row to trace its coordinates on the document.
       </div>
     </div>
   );

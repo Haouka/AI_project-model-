@@ -1,6 +1,10 @@
 import React from "react";
-import { Search, Filter, ArrowUpRight, ShieldCheck, AlertTriangle, AlertCircle, Clock } from "lucide-react";
-import { CaseListItem, CaseStatus, ReviewPriority } from "../types";
+import { Search, Filter, ArrowUpRight, FileCheck } from "lucide-react";
+import { CaseListItem } from "../types";
+import { Badge } from "./ui/Badge";
+import { Button } from "./ui/Button";
+import { Input } from "./ui/Input";
+import { Select } from "./ui/Select";
 
 interface CasesTableProps {
   cases: CaseListItem[];
@@ -23,188 +27,209 @@ export const CasesTable: React.FC<CasesTableProps> = ({
   setStatusFilter,
   docTypeFilter,
   setDocTypeFilter,
-  onRefresh,
 }) => {
-  const getPriorityBadge = (priority: ReviewPriority) => {
-    switch (priority) {
-      case "HIGH_PRIORITY_REVIEW":
-        return (
-          <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/10 px-2.5 py-0.5 text-xs font-semibold text-rose-400 border border-rose-500/20">
-            <AlertCircle className="h-3 w-3" />
-            HIGH PRIORITY
-          </span>
-        );
-      case "NEEDS_REVIEW":
-        return (
-          <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-semibold text-amber-400 border border-amber-500/20">
-            <AlertTriangle className="h-3 w-3" />
-            NEEDS REVIEW
-          </span>
-        );
-      case "LOW_CONCERN":
-      default:
-        return (
-          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-400 border border-emerald-500/20">
-            <ShieldCheck className="h-3 w-3" />
-            LOW CONCERN
-          </span>
-        );
-    }
-  };
-
-  const getStatusBadge = (status: CaseStatus) => {
-    switch (status) {
-      case "COMPLETED":
-        return <span className="text-xs font-medium text-emerald-400">Completed</span>;
-      case "ESCALATED":
-        return <span className="text-xs font-medium text-rose-400">Escalated</span>;
-      case "NEEDS_REVIEW":
-        return <span className="text-xs font-medium text-amber-300">Awaiting Review</span>;
-      case "PROCESSING":
-      default:
-        return (
-          <span className="inline-flex items-center gap-1 text-xs font-medium text-blue-400">
-            <Clock className="h-3 w-3 animate-spin" /> Processing
-          </span>
-        );
-    }
-  };
-
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-900/50 backdrop-blur-sm overflow-hidden shadow-xl shadow-black/40">
+    <div className="rounded-2xl border-2 border-ink bg-white overflow-hidden shadow-neo">
       {/* Search and Filters Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 border-b border-slate-800 bg-slate-900/80">
-        {/* Search */}
-        <div className="relative w-full sm:w-80">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
-          <input
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 border-b-2 border-ink bg-[#FFFDF7]">
+        {/* Search Input */}
+        <div className="w-full sm:w-84">
+          <Input
             type="text"
-            placeholder="Search by Case ID, Name, or Number..."
+            placeholder="Search Case ID, applicant, document number..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full rounded-xl border border-slate-700 bg-slate-950 py-2 pl-9 pr-3 text-xs text-white placeholder-slate-500 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+            leftIcon={<Search className="h-4 w-4 stroke-[2.5]" />}
           />
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-          <div className="flex items-center space-x-1">
-            <Filter className="h-3.5 w-3.5 text-slate-400" />
-            <span className="text-xs text-slate-400">Filter:</span>
+        <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+          <div className="hidden sm:flex items-center space-x-1.5 bg-white border-2 border-ink rounded-xl px-2.5 py-1.5 shadow-neo-sm">
+            <Filter className="h-3.5 w-3.5 text-ink stroke-[2.5]" />
+            <span className="text-xs font-black text-ink uppercase tracking-wider">Filters:</span>
           </div>
 
-          <select
+          <Select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="rounded-lg border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-slate-300 outline-none focus:border-blue-500"
+            className="w-full sm:w-auto"
+            aria-label="Filter by case status"
           >
             <option value="">All Statuses</option>
             <option value="NEEDS_REVIEW">Needs Review</option>
             <option value="PROCESSING">Processing</option>
             <option value="COMPLETED">Completed</option>
             <option value="ESCALATED">Escalated</option>
-          </select>
+          </Select>
 
-          <select
+          <Select
             value={docTypeFilter}
             onChange={(e) => setDocTypeFilter(e.target.value)}
-            className="rounded-lg border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-slate-300 outline-none focus:border-blue-500"
+            className="w-full sm:w-auto"
+            aria-label="Filter by document type"
           >
             <option value="">All Document Types</option>
             <option value="PASSPORT">Passport</option>
             <option value="VISA">Visa</option>
             <option value="NATIONAL_ID">National ID</option>
-          </select>
+          </Select>
         </div>
       </div>
 
-      {/* Cases Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs">
-          <thead className="border-b border-slate-800 bg-slate-950/60 text-slate-400 uppercase tracking-wider text-[11px]">
-            <tr>
-              <th className="py-3 px-4 font-semibold">Case ID</th>
-              <th className="py-3 px-4 font-semibold">Document</th>
-              <th className="py-3 px-4 font-semibold">Applicant & Identifiers</th>
-              <th className="py-3 px-4 font-semibold">Review Priority</th>
-              <th className="py-3 px-4 font-semibold">Status</th>
-              <th className="py-3 px-4 font-semibold">OCR Confidence</th>
-              <th className="py-3 px-4 font-semibold text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-800/60">
-            {cases.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="py-12 text-center text-slate-500">
-                  <p className="text-sm font-medium">No document screening cases found</p>
-                  <p className="text-xs text-slate-600 mt-1">
-                    Click "Load Demo Fixtures" or "New Screening" to begin analysis.
-                  </p>
-                </td>
-              </tr>
-            ) : (
-              cases.map((c) => (
-                <tr
-                  key={c.id}
-                  onClick={() => onSelectCase(c.id)}
-                  className="group cursor-pointer transition-colors hover:bg-slate-800/40"
-                >
-                  <td className="py-3 px-4 font-mono font-medium text-blue-400">
+      {/* Empty State */}
+      {cases.length === 0 ? (
+        <div className="py-14 text-center bg-cream/40 p-4">
+          <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-orange border-2 border-ink shadow-neo-sm mb-3">
+            <FileCheck className="h-6 w-6 text-ink stroke-[2.2]" />
+          </div>
+          <p className="text-sm font-black text-ink">No screening cases found</p>
+          <p className="text-xs font-bold text-ink/60 mt-1 max-w-sm mx-auto">
+            Click "Load Demo Fixtures" in the header to populate realistic synthetic travel documents, or launch "New Screening".
+          </p>
+        </div>
+      ) : (
+        <>
+          {/* Mobile Card List Representation (< md) */}
+          <div className="block md:hidden divide-y-2 divide-ink/15">
+            {cases.map((c) => (
+              <div
+                key={c.id}
+                onClick={() => onSelectCase(c.id)}
+                className="p-4 space-y-3 hover:bg-yellow-50/50 transition-colors cursor-pointer"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="rounded bg-cream px-2 py-0.5 border-2 border-ink font-mono font-black text-xs shadow-[1px_1px_0_#171717]">
                     {c.id}
-                  </td>
-                  <td className="py-3 px-4">
-                    <span className="font-semibold text-slate-200">{c.document_type}</span>
-                    <div className="text-[11px] text-slate-400 truncate max-w-xs">{c.title}</div>
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="font-medium text-slate-200">{c.applicant_name}</div>
-                    <div className="font-mono text-[11px] text-slate-400">
+                  </span>
+                  <Badge priority={c.review_priority} size="sm" />
+                </div>
+
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <div className="font-black text-sm text-ink">{c.applicant_name}</div>
+                    <div className="text-xs font-bold text-ink/70 font-mono mt-0.5">
                       {c.document_number} {c.nationality ? `• ${c.nationality}` : ""}
                     </div>
-                  </td>
-                  <td className="py-3 px-4">
-                    {getPriorityBadge(c.review_priority)}
-                  </td>
-                  <td className="py-3 px-4">
-                    {getStatusBadge(c.status)}
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-16 h-1.5 rounded-full bg-slate-800 overflow-hidden">
-                        <div
-                          className={`h-full rounded-full ${
-                            c.overall_confidence > 0.9
-                              ? "bg-emerald-400"
-                              : c.overall_confidence > 0.8
-                              ? "bg-blue-400"
-                              : "bg-amber-400"
-                          }`}
-                          style={{ width: `${Math.round((c.overall_confidence || 0.85) * 100)}%` }}
-                        />
-                      </div>
-                      <span className="text-[11px] font-mono text-slate-300">
-                        {Math.round((c.overall_confidence || 0.85) * 100)}%
-                      </span>
+                  </div>
+                  <Badge status={c.status} size="sm" />
+                </div>
+
+                <div className="flex items-center justify-between pt-1">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-ink/60">OCR:</span>
+                    <div className="w-20 h-2.5 rounded-full bg-cream border-2 border-ink overflow-hidden">
+                      <div
+                        className={`h-full rounded-full ${
+                          c.overall_confidence > 0.9
+                            ? "bg-mint"
+                            : c.overall_confidence > 0.8
+                            ? "bg-blue"
+                            : "bg-orange"
+                        }`}
+                        style={{ width: `${Math.round((c.overall_confidence || 0.85) * 100)}%` }}
+                      />
                     </div>
-                  </td>
-                  <td className="py-3 px-4 text-right">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onSelectCase(c.id);
-                      }}
-                      className="inline-flex items-center space-x-1 rounded-lg bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-300 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-sm"
-                    >
-                      <span>Review</span>
-                      <ArrowUpRight className="h-3.5 w-3.5" />
-                    </button>
-                  </td>
+                    <span className="text-xs font-mono font-bold text-ink">
+                      {Math.round((c.overall_confidence || 0.85) * 100)}%
+                    </span>
+                  </div>
+
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    rightIcon={<ArrowUpRight className="h-3.5 w-3.5 stroke-[2.5]" />}
+                  >
+                    Review
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop Full Table Representation (>= md) */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full text-left text-xs border-collapse">
+              <thead className="border-b-2 border-ink bg-[#FFFDF7] text-ink uppercase tracking-wider text-[11px]">
+                <tr>
+                  <th className="py-3.5 px-4 font-black">Case ID</th>
+                  <th className="py-3.5 px-4 font-black">Document</th>
+                  <th className="py-3.5 px-4 font-black">Applicant & Identifiers</th>
+                  <th className="py-3.5 px-4 font-black">Review Priority</th>
+                  <th className="py-3.5 px-4 font-black">Status</th>
+                  <th className="py-3.5 px-4 font-black">OCR Confidence</th>
+                  <th className="py-3.5 px-4 font-black text-right">Actions</th>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              </thead>
+              <tbody className="divide-y-2 divide-ink/10">
+                {cases.map((c) => (
+                  <tr
+                    key={c.id}
+                    onClick={() => onSelectCase(c.id)}
+                    className="group cursor-pointer transition-colors hover:bg-yellow-50/60"
+                  >
+                    <td className="py-3.5 px-4 font-mono font-bold text-ink">
+                      <span className="rounded bg-cream px-1.5 py-0.5 border border-ink shadow-[1px_1px_0_#171717]">
+                        {c.id}
+                      </span>
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <span className="inline-block font-black text-ink bg-blue/40 border border-ink rounded-md px-1.5 py-0.5 text-[10px] uppercase tracking-wider mr-1.5">
+                        {c.document_type}
+                      </span>
+                      <span className="text-xs font-bold text-ink/80 truncate max-w-xs">{c.title}</span>
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <div className="font-black text-ink">{c.applicant_name}</div>
+                      <div className="font-mono text-[11px] font-bold text-ink/70">
+                        {c.document_number} {c.nationality ? `• ${c.nationality}` : ""}
+                      </div>
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <Badge priority={c.review_priority} />
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <Badge status={c.status} />
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-18 h-2.5 rounded-full bg-cream border-2 border-ink overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all ${
+                              c.overall_confidence > 0.9
+                                ? "bg-mint"
+                                : c.overall_confidence > 0.8
+                                ? "bg-blue"
+                                : "bg-orange"
+                            }`}
+                            style={{ width: `${Math.round((c.overall_confidence || 0.85) * 100)}%` }}
+                          />
+                        </div>
+                        <span className="text-[11px] font-mono font-bold text-ink">
+                          {Math.round((c.overall_confidence || 0.85) * 100)}%
+                        </span>
+                      </div>
+                    </td>
+                    <td className="py-3.5 px-4 text-right">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        rightIcon={<ArrowUpRight className="h-3.5 w-3.5 stroke-[2.5]" />}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onSelectCase(c.id);
+                        }}
+                      >
+                        Review
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
     </div>
   );
 };
